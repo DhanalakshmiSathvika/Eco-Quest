@@ -74,31 +74,6 @@
             background-color: #bbdefb;
         }
         
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(3, 60px);
-            grid-template-rows: repeat(3, 60px);
-            gap: 5px;
-            margin-bottom: 20px;
-        }
-        
-        .controls button {
-            font-size: 24px;
-            cursor: pointer;
-            border: 1px solid #4cfe24;
-            border-radius: 4px;
-            background-color: #f5f5f5;
-            transition: background-color 0.2s;
-        }
-        
-        .controls button:hover {
-            background-color: #e0e0e0;
-        }
-        
-        .controls button:active {
-            background-color: #bdbdbd;
-        }
-        
         .status {
             margin-top: 10px;
             padding: 10px;
@@ -108,19 +83,21 @@
             font-weight: bold;
         }
         
-        .reset-btn {
-            margin-top: 10px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #2196f3;
+        #game-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
             color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        
-        .reset-btn:hover {
-            background-color: #84e231;
+            font-size: 2rem;
+            text-align: center;
         }
     </style>
 </head>
@@ -130,20 +107,12 @@
         <div class="grid" id="maze"></div>
     </div>
     
-    <div class="controls">
-        <button onclick="movePlayer(0, 0)"></button>
-        <button onclick="movePlayer(0, -1)">⬆</button>
-        <button onclick="movePlayer(0, 0)"></button>
-        <button onclick="movePlayer(-1, 0)">⬅</button>
-        <button onclick="movePlayer(0, 0)"></button>
-        <button onclick="movePlayer(1, 0)">➡</button>
-        <button onclick="movePlayer(0, 0)"></button>
-        <button onclick="movePlayer(0, 1)">⬇</button>
-        <button onclick="movePlayer(0, 0)"></button>
-    </div>
-    
     <div class="status" id="status">Find your way to the manufacturing department! 🏭</div>
-    <button class="reset-btn" onclick="resetGame()">Reset Game</button>
+
+    <div id="game-overlay">
+        <h2 id="game-result"></h2>
+        <p id="game-score"></p>
+    </div>
 
     <script>
         // Game configuration
@@ -159,7 +128,7 @@
         // Initialize the game
         function initGame() {
             createMazeLayout();
-            placeTrash();  // Add trash positions
+            placeTrash();  
             
             playerPosition = { x: 0, y: 0 };
             visitedCells = [{ x: 0, y: 0 }];
@@ -168,6 +137,27 @@
             
             renderGrid();
             updateStatus("Find your way to the manufacturing department! 🏭 Score: 0");
+
+            // Add keyboard event listener
+            document.addEventListener('keydown', handleKeyboardInput);
+        }
+        
+        // Keyboard input handler
+        function handleKeyboardInput(event) {
+            switch(event.key) {
+                case 'ArrowUp':
+                    movePlayer(0, -1);
+                    break;
+                case 'ArrowDown':
+                    movePlayer(0, 1);
+                    break;
+                case 'ArrowLeft':
+                    movePlayer(-1, 0);
+                    break;
+                case 'ArrowRight':
+                    movePlayer(1, 0);
+                    break;
+            }
         }
         
         // Create maze layout with paths and walls
@@ -260,7 +250,7 @@
                 moves++;
                 
                 if (newX === goalPosition.x && newY === goalPosition.y) {
-                    updateStatus(`🎉 Congratulations! You reached the manufacturing department 🏭 in ${moves} moves. Final Score: ${score}`);
+                    endGame(true);
                 } else {
                     updateStatus(`Keep going! Score: ${score}`);
                 }
@@ -298,9 +288,30 @@
             statusEl.textContent = message;
         }
         
-        // Reset the game
-        function resetGame() {
-            initGame();
+        // End game function
+        function endGame(reached) {
+            // Remove keyboard event listener
+            document.removeEventListener('keydown', handleKeyboardInput);
+
+            // Show game overlay
+            const overlay = document.getElementById('game-overlay');
+            const resultEl = document.getElementById('game-result');
+            const scoreEl = document.getElementById('game-score');
+
+            if (reached) {
+                resultEl.innerHTML = `🎉 GAME COMPLETED! 💥`;
+                scoreEl.innerHTML = `Final Score: ${score} in ${moves} moves`;
+            } else {
+                resultEl.innerHTML = `GAME OVER 💥`;
+                scoreEl.innerHTML = `Final Score: ${score}`;
+            }
+
+            overlay.style.display = 'flex';
+
+            // Redirect to home page after 2 seconds
+            setTimeout(() => {
+                window.location.href = "Cards.html";
+            }, 2000);
         }
         
         // Initialize game on page load
