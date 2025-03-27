@@ -92,10 +92,6 @@ function checkAnswer(selectedIndex) {
         score++; // Increase score if the answer is correct
     } else {
         score--; // Decrease score if the answer is wrong
-        // Prevent negative scores
-        // if (score < 0) {
-        //     score = 0;
-        // }
     }
 
     updateScoreDisplay();
@@ -106,21 +102,26 @@ function nextQuestion() {
     if (currentQuestionIndex < quizData.length) {
         loadQuestion();
     } else {
-        document.getElementById("question-container").innerHTML = `
-            <h2>🎉 Quiz Completed! Well Done! 🌱</h2>
-            <p>Your final score: <strong>${score} / ${quizData.length}</strong></p>
-            <button class="next-btn" onclick="goToHomePage()">Back to Home Page</button>
-        `;
+        showFinalScore();
     }
+}
+
+function showFinalScore() {
+    // Display final score
+    document.getElementById("question-container").innerHTML = `
+        <h2>🎉 Quiz Completed! 🌱</h2>
+        <p>Your final score: <strong>${score} / ${quizData.length}</strong></p>
+    `;
+
+    // Redirect to Cards page after 3 seconds
+    setTimeout(() => {
+        window.location.href = "Cards.html";
+    }, 3000);
 }
 
 function updateScoreDisplay() {
     let scoreElement = document.getElementById("score-display");
     scoreElement.textContent = `Score: ${score} / ${quizData.length}`;
-}
-
-function goToHomePage() {
-    window.location.href = "Cards.html"; // Change "index.html" to your home page URL
 }
 
 // Ensure the score display is available on page load
