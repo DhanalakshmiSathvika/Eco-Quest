@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recyclable Waste Card Game</title>
+    <style>
+        :root {
+            --primary-color: #4CAF50;
+            --secondary-color: #FF9800;
+            --danger-color: #f44336;
+            --neutral-color: #189ee0;
+            --light-color: #f5f5f5;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #eceef1;
+            text-align: center;
+            padding: 20px;
+            background-image: url("tree.jpg");
+        }
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            max-width: 600px;
+            margin: 0 auto 20px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            
+        }
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+        .card {
+            background: var(--neutral-color);
+            color: white;
+            padding: 50px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.5s;
+        }
+        .card.flipped {
+            background: white;
+            color: black;
+        }
+        .hidden { display: none; }
+        .game-over {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+        }
+        #id{
+            margin-top: 50px;
+            margin-bottom: 50px;
+            color:white;
+        }
+        #t{
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #18ed4d;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="t">Recyclable Waste Card Game</h1>
+    <p id="id">Identify recyclable items correctly to earn points! You have 4 attempts.</p>
+    <div class="game-info">
+        <div>Score: <span id="score">0</span></div>
+        <div>Attempts Left: <span id="attempts">4</span></div>
+    </div>
+    <div class="cards-container" id="cards-container"></div>
+    <div id="game-over" class="game-over hidden">Game Over! Final Score: <span id="final-score">0</span></div>
+    
+    <script>
+        const wasteItems = [
+            { name: "Plastic Bottles", isRecyclable: true },
+            { name: "Paper", isRecyclable: true },
+            { name: "Glass Bottles", isRecyclable: true },
+            { name: "Cardboard", isRecyclable: true },
+            { name: "Aluminum Cans", isRecyclable: true },
+            { name: "Styrofoam", isRecyclable: false },
+            { name: "Used Pizza Box", isRecyclable: false },
+            { name: "Plastic Bags", isRecyclable: false },
+            { name: "Food Waste", isRecyclable: false }
+        ];
+
+        let score = 0;
+        let attempts = 4;
+        const cardsContainer = document.getElementById("cards-container");
+        const scoreElement = document.getElementById("score");
+        const attemptsElement = document.getElementById("attempts");
+        const gameOverElement = document.getElementById("game-over");
+        const finalScoreElement = document.getElementById("final-score");
+
+        function createCards() {
+            wasteItems.sort(() => Math.random() - 0.5);
+            cardsContainer.innerHTML = "";
+            wasteItems.forEach((item, index) => {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.dataset.index = index;
+                card.innerHTML = "Click to Flip";
+                card.addEventListener("click", () => flipCard(card, item));
+                cardsContainer.appendChild(card);
+            });
+        }
+
+        function flipCard(card, item) {
+            if (!card.classList.contains("flipped")) {
+                card.classList.add("flipped");
+                card.innerHTML = `<b>${item.name}</b>`;
+                setTimeout(() => checkAnswer(card, item), 1000);
+            }
+        }
+
+        function checkAnswer(card, item) {
+            const isCorrect = item.isRecyclable;
+            if (isCorrect) {
+                score++;
+                card.innerHTML += "<br>✅ Correct!";
+                card.style.background = "var(--primary-color)";
+                setTimeout(() => card.classList.add("hidden"), 1000);
+            } else {
+                attempts--;
+                card.innerHTML += "<br>❌ Try Again!";
+                card.style.background = "var(--danger-color)";
+                setTimeout(() => card.classList.remove("flipped"), 1000);
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            scoreElement.textContent = score;
+            attemptsElement.textContent = attempts;
+            if (attempts === 0) {
+                gameOver();
+            }
+        }
+
+        function gameOver() {
+            gameOverElement.classList.remove("hidden");
+            finalScoreElement.textContent = score;
+            setTimeout(() => {
+                window.location.href = "Cards.html"; // Change this to your actual homepage URL
+            }, 3000); // Redirects after 3 seconds
+        }
+        
+
+        createCards();
+    </script>
+</body>
+</html>
